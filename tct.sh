@@ -1,51 +1,54 @@
-#COLOURS
-red='\u001b[31m'
-green='\u001b[32m'
-cyan='\u001b[36m'
-magenta='\u001b[35m'
+#Colours
+red='\u001b[1;91m'
+green='\u001b[1;92m'
+cyan='\u001b[1;96m'
+magenta='\u001b[1;95m'
+white='\u001b[1;97m'
 
 #Exit script cleanly
 trap "{ rm -f feedback a.out r.out r.check; }" SIGTERM SIGQUIT SIGINT EXIT
 
-#VARS
-cppFile="$1"
-baseName="`basename $1 .cpp`"
-inputFile="#.in"
-expectedFile="#.out"
+#Edit
 cpp_flags="g++ -std=c++17 -O2 -w -lm"
 timeLimit=1
 
 #Validate arguments given
-if [ $# -eq 1 ]
+if [ $# != 1 ]
 then 
-	echo -e "${cyan}[+] Usage correct"
-else
 	echo -e "${magenta}[+] Usage incorrect"
 	echo -e "${magenta}   Format: $0 *.cpp"
-fi
-
-#Check filetype
-if [ "${cppFile##*.}" == 'cpp' ]
-then
-	echo -e "${cyan}[+] *.cpp file confirmed"
-else
-	echo -e "${magenta}[+] *.cpp file not found"
 	exit 1;
 fi
 
+#Header output
+baseName="`basename $1 .cpp`" #base filename
+echo -e "${magenta}-----------------------------------------------------"
+echo -e "      ${magenta}+===---${cyan}Problem Name: $baseName${magenta}---===+"
+echo -e "      ${magenta}+===---${cyan}Time Limit: $timeLimit sec${magenta}---===+"
+echo -e "${magenta}-----------------------------------------------------"
+
+#Check filetype
+if [ "${1##*.}" == 'cpp' ]
+then
+	echo -e "${cyan}[+] Compiling $1 with $cpp_flags"
+else
+	echo -e "${magenta}[+] *.cpp file not found"
+	exit 2;
+fi
+
 #Compile
-echo -e "${cyan}[+] Compiling $cppFile"
 echo "$cpp_flags $1 2> feedback" | sh
 
 result=$?
 if [ $result -ne 0 ]
 then
-	echo -e "${magenta}<<Compile Error>>"
-else
-	echo -e "${cyan}<<Compile Successful>>"
+	echo -e "${magenta}[+] Compile Error"
+	exit 1;
 fi
 
 #Run for all files of format baseName.*.in and check baseName.*.out
+echo -e "${cyan}[+] Running Test Cases"
+
 for i in $baseName.*.in
 do
 	if [ "${i}" == "$baseName.*.in" ]
@@ -53,27 +56,33 @@ do
 		echo -e "${magenta}[+] No input files located"
 		exit 1;
 	fi
+	totalCount=$((totalCount+1))
 	timeout ${timeLimit}s ./a.out < ${i} > r.out
 	exitCode=$?
 	if [ $exitCode == 124 ]
 	then
-		echo -e "${red}[TLE][${1%.in}] Time Limit Exceeded $timeLimit seconds"
+		echo -e "${white}Checking ${i%.in}:   ${red}[TLE][❌] Time Limit Exceeded $timeLimit seconds"
 	elif [ $exitCode != 0 ]
 	then
 		#if [ $exitCode == 139 ]
 		#then
 		#	echo -e "${red}[RTE][${1%.in}] Attempt to access memory out-of-bounds"
 		#fi
-		echo -e "${red}[RTE][${1%.in}] Runtime Error"
+		echo -e "${white}Checking ${i%.in}:   ${red}[RTE][❌] Runtime Error"
 	else
-		echo "+===---[${i%.in}] Running Test Case---===+"
-		colordiff --strip-trailing-cr ${i%.in}.out r.out > r.check
+		sdiff -w55 --strip-trailing-cr ${i%.in}.out r.out > r.check
 		if [ $? != 0 ]
 		then
-			echo -e "${red}[WA] Wrong Answer"
+			echo -e "${white}Checking ${i%.in}:   ${red}[WA][❌] Wrong Answer"
+			echo -e "${red}-----------------------------------------------------"
 			cat r.check
+			echo -e "${red}-----------------------------------------------------"
 		else
-			echo -e "${green}[AC] Accepted"
+			acceptedCount=$((acceptedCount+1))
+			echo -e "${white}Checking ${i%.in}:   ${green}[AC][✔ ] Accepted"
 		fi
 	fi
 done
+
+echo -e
+echo -e "${white}Accepted $acceptedCount / $totalCount"
