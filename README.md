@@ -33,3 +33,11 @@ Support for other C languages, Python and Java will be added in the future.
 In the future it is expected that Tcc will have:
 - more supported languages(atleast for the C languages, Python and Java)
 - better error detection
+
+## Extras
+
+Here are some add-ons I use along with this script
+
+### /add-ons/cp.sh/ 
+
+a simple script to make an directory containing tct.sh (I use this to keep my cp directory from getting cluttered with test-cases)
