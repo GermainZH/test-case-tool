@@ -10,6 +10,8 @@ trap "{ rm -f feedback a.out r.out r.check; }" SIGTERM SIGQUIT SIGINT EXIT
 
 #Edit
 cpp_flags="g++ -std=c++17 -O2 -w -lm"
+c_flags="gcc -O2 -w -lm"
+
 timeLimit=1
 
 #Validate arguments given
@@ -20,24 +22,31 @@ then
 	exit 1;
 fi
 
+#Check filetype
+if [ "${1##*.}" == 'cpp' ]
+then
+	flags=$cpp_flags
+	baseName="`basename $1 .cpp`" #base filename
+elif [ "${1##*.}" == 'c' ]
+then
+	flags=$c_flags
+	baseName="`basename $1 .c`" #base filename
+else
+	echo -e "${magenta}[+] Filetype invalid"
+	echo -e "${magenta}   Make sure file is of type '.c' or '.cpp'" 
+	exit 2;
+fi
+
 #Header output
-baseName="`basename $1 .cpp`" #base filename
 echo -e "${magenta}-----------------------------------------------------"
 echo -e "      ${magenta}+===---${cyan}Problem Name: $baseName${magenta}---===+"
 echo -e "      ${magenta}+===---${cyan}Time Limit: $timeLimit sec${magenta}---===+"
 echo -e "${magenta}-----------------------------------------------------"
 
-#Check filetype
-if [ "${1##*.}" == 'cpp' ]
-then
-	echo -e "${cyan}[+] Compiling $1 with $cpp_flags"
-else
-	echo -e "${magenta}[+] *.cpp file not found"
-	exit 2;
-fi
 
 #Compile
-echo "$cpp_flags $1 2> feedback" | sh
+echo -e "${cyan}[+] Compiling $1 with $flags"
+echo "$flags $1 2> feedback" | sh
 
 result=$?
 if [ $result -ne 0 ]
@@ -57,29 +66,33 @@ do
 		exit 1;
 	fi
 	totalCount=$((totalCount+1))
+	start=`date +%s%N`
 	timeout ${timeLimit}s ./a.out < ${i} > r.out
+	end=`date +%s%N`
+	time=`awk "BEGIN {x=$start; y=$end; z=(y-x)/1000000000; print z}"`
 	exitCode=$?
 	if [ $exitCode == 124 ]
 	then
-		echo -e "${white}Checking ${i%.in}:   ${red}[TLE][❌] Time Limit Exceeded $timeLimit seconds"
+		echo -e "${white}Checking ${i%.in}:   ${red}[TLE][❌][$(($((end-start))/1000000)) ms] Time Limit Exceeded $timeLimit seconds"
 	elif [ $exitCode != 0 ]
 	then
 		#if [ $exitCode == 139 ]
 		#then
 		#	echo -e "${red}[RTE][${1%.in}] Attempt to access memory out-of-bounds"
 		#fi
-		echo -e "${white}Checking ${i%.in}:   ${red}[RTE][❌] Runtime Error"
+		echo -e "${white}Checking ${i%.in}:   ${red}[RTE][❌][$time ms] Runtime Error"
 	else
 		sdiff -w55 --strip-trailing-cr ${i%.in}.out r.out > r.check
 		if [ $? != 0 ]
 		then
-			echo -e "${white}Checking ${i%.in}:   ${red}[WA][❌] Wrong Answer"
+			echo -e "${white}Checking ${i%.in}:   ${red}[WA][❌][$time ms] Wrong Answer"
+			echo -e "${cyan}[Expected Output]               [Generated Output]"
 			echo -e "${red}-----------------------------------------------------"
 			cat r.check
 			echo -e "${red}-----------------------------------------------------"
 		else
 			acceptedCount=$((acceptedCount+1))
-			echo -e "${white}Checking ${i%.in}:   ${green}[AC][✔ ] Accepted"
+			echo -e "${white}Checking ${i%.in}:   ${green}[AC][✔ ][$time ms] Accepted"
 		fi
 	fi
 done
