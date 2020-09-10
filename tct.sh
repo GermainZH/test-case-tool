@@ -6,12 +6,12 @@ magenta='\u001b[1;95m'
 white='\u001b[1;97m'
 
 #Exit script cleanly
-trap "{ rm -f feedback a.out r.out r.check; }" SIGTERM SIGQUIT SIGINT EXIT
+trap "{ rm -f feedback a.out r.out r.check Main.class; }" SIGTERM SIGQUIT SIGINT EXIT
 
 #Edit
-cpp_flags="g++ -std=c++17 -O2 -w -lm"
+cpp_flags="g++ -std=c++17 -Wall -Wextra -O2 -w -lm"
 c_flags="gcc -O2 -w -lm"
-
+java_flags="javac"
 timeLimit=1
 
 #Validate arguments given
@@ -31,6 +31,10 @@ elif [ "${1##*.}" == 'c' ]
 then
 	flags=$c_flags
 	baseName="`basename $1 .c`" #base filename
+elif [ "${1##*.}" == 'java' ]
+then
+	flags=$java_flags
+	baseName="`basename $1 .java`" #base filename
 else
 	echo -e "${magenta}[+] Filetype invalid"
 	echo -e "${magenta}   Make sure file is of type '.c' or '.cpp'" 
@@ -46,10 +50,11 @@ echo -e "${magenta}-----------------------------------------------------"
 
 #Compile
 echo -e "${cyan}[+] Compiling $1 with $flags"
+echo "$flags "
 echo "$flags $1 2> feedback" | sh
 
 result=$?
-if [ $result -ne 0 ]
+if [ $result != 0 ]
 then
 	echo -e "${magenta}[+] Compile Error"
 	exit 1;
@@ -57,6 +62,8 @@ fi
 
 #Run for all files of format baseName.*.in and check baseName.*.out
 echo -e "${cyan}[+] Running Test Cases"
+
+acceptedCount=0
 
 for i in $baseName.*.in
 do
@@ -67,19 +74,21 @@ do
 	fi
 	totalCount=$((totalCount+1))
 	start=`date +%s%N`
-	timeout ${timeLimit}s ./a.out < ${i} > r.out
+	if [ "$flags" == "$java_flags" ]
+	then
+		timeout ${timeLimit}s java Main < ${i} > r.out
+		exitCode=$?
+	else
+		timeout ${timeLimit}s ./a.out < ${i} > r.out
+		exitCode=$?
+	fi
 	end=`date +%s%N`
 	time=`awk "BEGIN {x=$start; y=$end; z=(y-x)/1000000000; print z}"`
-	exitCode=$?
 	if [ $exitCode == 124 ]
 	then
 		echo -e "${white}Checking ${i%.in}:   ${red}[TLE][❌][$(($((end-start))/1000000)) ms] Time Limit Exceeded $timeLimit seconds"
 	elif [ $exitCode != 0 ]
 	then
-		#if [ $exitCode == 139 ]
-		#then
-		#	echo -e "${red}[RTE][${1%.in}] Attempt to access memory out-of-bounds"
-		#fi
 		echo -e "${white}Checking ${i%.in}:   ${red}[RTE][❌][$time ms] Runtime Error"
 	else
 		sdiff -w55 --strip-trailing-cr ${i%.in}.out r.out > r.check
