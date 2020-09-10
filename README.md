@@ -24,20 +24,15 @@ $ ./tcc.sh filename.cpp
     - test.1.out, test.2.out... test.n.out
 - The number of input files must match the number of expected output files
 - The tct.sh file must be placed in the same directory as the source file.
-## Supported Languages
-Test-case-tool currently only has support for C++.
 
-Support for other C languages, Python and Java will be added in the future.
+## Supported Languages
+Test-case-tool has support for C++,C and Java.
 
 ## What to expect in the future
-In the future it is expected that Tcc will have:
-- more supported languages(atleast for the C languages, Python and Java)
-- better error detection
+As of now, Tct should not be used as a standalone tool for testing your programs. Although it can detect TLE errors and check outputs with accuracy, some runtimes errors manage to slip by without being detected. This tool should only be used once you have confirmed your program will run smoothly, at which point the tool can be executed to grade all test-cases.
 
 ## Extras
-
 Here are some add-ons I use along with this script
 
 ### /add-ons/cp.sh/ 
-
 a simple script to make an directory containing tct.sh (I use this to keep my cp directory from getting cluttered with test-cases)
