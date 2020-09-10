@@ -7,9 +7,6 @@ cyan='\u001b[1;96m'
 magenta='\u001b[1;95m'
 white='\u001b[1;97m'
 
-#Exit script cleanly
-trap "{ rm -f feedback a.out r.out r.check Main.class; }" SIGTERM SIGQUIT SIGINT EXIT
-
 #Edit
 cpp_flags="g++ -std=c++17 -O2 -w -lm"
 c_flags="gcc -O2 -w -lm"
@@ -42,6 +39,9 @@ else
 	echo -e "${magenta}   Make sure file is of type '.c' or '.cpp'" 
 	exit 2;
 fi
+
+#Exit script cleanly
+trap "{ rm -f feedback a.out r.out r.check $baseName.class Main.class; }" SIGTERM SIGQUIT SIGINT EXIT
 
 #Header output
 echo -e "${magenta}-----------------------------------------------------"
