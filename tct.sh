@@ -10,8 +10,6 @@ white='\u001b[1;97m'
 #Exit script cleanly
 trap "{ rm -f feedback a.out r.out r.check Main.class; }" SIGTERM SIGQUIT SIGINT EXIT
 
-#!/bin/bash
-
 #Edit
 cpp_flags="g++ -std=c++17 -O2 -w -lm"
 c_flags="gcc -O2 -w -lm"
