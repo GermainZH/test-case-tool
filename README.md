@@ -1,9 +1,5 @@
 # test-case-tool
-Shell-script that automates the process of checking solutions.
-
-Test-case-tool or Tct compiles and runs a program against multiple test-cases and provides feedback for each case.
-
-Tct is still in development and there will be many new changes and additions in the future.
+Shell-script that automates the process of checking solutions. Test-case-tool or Tct compiles and runs a program against multiple test-cases and provides feedback for each case. Tct is still in development and there will be many new changes and additions in the future.
 
 ## Demo
 In order to use the grader, run the shell script file and pass an ".cpp" file.
@@ -35,4 +31,7 @@ As of now, Tct should not be used as a standalone tool for testing your programs
 Here are some add-ons I use along with this script
 
 ### /add-ons/cp.sh/ 
+a simple script to make an directory containing tct.sh (I use this to keep my cp directory from getting cluttered with test-cases)
+
+### /add-ons/gen.sh/ 
 a simple script to make an directory containing tct.sh (I use this to keep my cp directory from getting cluttered with test-cases)
