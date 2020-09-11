@@ -37,3 +37,6 @@ Here are some add-ons I use along with this script.
 
 ### /add-ons/cp.sh/ 
 a simple script to make an directory containing tct.sh (I use this to keep my cp directory from getting cluttered with test-cases)
+
+### /add-ons/generate.sh/
+script to generate testcases using a brute solution and place them in files to be checked by Tct.
