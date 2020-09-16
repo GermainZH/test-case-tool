@@ -17,7 +17,7 @@ timeLimit=1
 if [ $# != 1 ]
 then 
 	echo -e "${magenta}[+] Usage incorrect"
-	echo -e "${magenta}   Format: $0 *.cpp"
+	echo -e "${magenta}   Format: $0 *.cpp, *.c or *.java"
 	exit 1;
 fi
 
@@ -36,7 +36,7 @@ then
 	baseName="`basename $1 .java`" #base filename
 else
 	echo -e "${magenta}[+] Filetype invalid"
-	echo -e "${magenta}   Make sure file is of type '.c' or '.cpp'" 
+	echo -e "${magenta}   Make sure file is of type *.cpp, *.c or *.java" 
 	exit 2;
 fi
 
