@@ -6,7 +6,7 @@ Test-case-tool or Tct compiles and runs a program against multiple test-cases an
 Tct is still in development and there will be many new changes and additions in the future.
 
 ## Demo
-In order to use the grader, run the shell script file and pass an ".cpp" file.
+In order to use the grader, run the shell script file and pass the source code.
 
 ```bash
 $ ./tcc.sh filename.cpp
